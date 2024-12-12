@@ -1,6 +1,5 @@
-import { AppSidebar } from "@/app/components/app-sidebar";
 import NavbarComponent from "@/app/components/app-navbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/app/components/app-sidebar";
 import {
   Card,
   CardContent,
@@ -8,22 +7,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function studentPage({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
+interface StudentPageProps {
   params: { studentId: string };
-}) {
-  if (!params || !params.studentId) {
+}
+
+export default function StudentPage({ params }: StudentPageProps) {
+  if (!params?.studentId) {
     return <div>Error: Missing student ID</div>;
   }
 
   return (
     <>
       <SidebarProvider defaultOpen={false}>
-        <AppSidebar role={"student"} id={params.studentId}/>
+        <AppSidebar role={"student"} id={params.studentId} />
         <main>
           <NavbarComponent role={"student"} />
 
@@ -64,7 +62,6 @@ export default function studentPage({
             </div>
           </div>
           <SidebarTrigger className="mt-32" />
-          {children}
         </main>
       </SidebarProvider>
     </>

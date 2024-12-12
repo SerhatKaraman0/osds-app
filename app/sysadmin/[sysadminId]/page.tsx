@@ -1,7 +1,5 @@
-import { AppSidebar } from "@/app/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import NavbarComponent from "@/app/components/app-navbar";
-
+import { AppSidebar } from "@/app/components/app-sidebar";
 import {
   Card,
   CardContent,
@@ -9,13 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function sysadminPage({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-}) {
+export default function sysadminPage({ params }: { params: { sysadminId: string } }) {
   return (
     <div className="flex">
       <SidebarProvider defaultOpen={false}>
@@ -62,7 +56,6 @@ export default function sysadminPage({
             </div>
           </div>
           <SidebarTrigger className="mt-32" />
-          {children}
         </main>
       </SidebarProvider>
     </div>

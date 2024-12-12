@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,6 +11,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
+import * as React from "react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -29,34 +30,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { StudentAccountDetails } from "@/models/interfaces";
+
+import { StudentAccountDetails } from "../models/interfaces";
 
 interface SysadminStudentTableProps {
   data: StudentAccountDetails[];
 }
 
 const studentColumns: ColumnDef<StudentAccountDetails>[] = [
-    {
-        accessorKey: "something",
-        header: ({ table }) => (
-            <Checkbox
-              checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && "indeterminate")
-              }
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-              aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-        />
-        ),
-      },
-    {
+  {
+    accessorKey: "something",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
+  {
     id: "std_id",
     accessorKey: "std_id",
   },
@@ -117,25 +119,23 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-        return (
-            <div className="flex space-x-2">
-                <Button variant="outline" onClick={() => handleUpdate(row.original)}>
-                    Update
-                </Button>
-                <Button variant="destructive" onClick={() => handleDelete(row.original)}>
-                    Delete
-                </Button>       
-                </div>
-            );              
+    cell: () => {
+      return (
+        <div className="flex space-x-2">
+          <Button variant="outline">Update</Button>
+          <Button variant="destructive">Delete</Button>
+        </div>
+      );
     },
   },
 ];
 
-export default function SysadminStudentTable({ data }: SysadminStudentTableProps) {
+export default function SysadminStudentTable({
+  data,
+}: SysadminStudentTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -211,7 +211,7 @@ export default function SysadminStudentTable({ data }: SysadminStudentTableProps
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -230,7 +230,7 @@ export default function SysadminStudentTable({ data }: SysadminStudentTableProps
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}

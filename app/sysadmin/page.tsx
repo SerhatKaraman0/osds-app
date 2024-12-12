@@ -1,18 +1,20 @@
-import { AppSidebar } from "../components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-const sysadminPage = ({ children }: { children: React.ReactNode }) => {
+import { AppSidebar } from "../components/app-sidebar";
+
+export default function SysadminPage() {
   return (
     <>
       <SidebarProvider>
-        <AppSidebar role={"admin"} />
+        <AppSidebar role="admin" id="some_id"/>
         <main>
           <SidebarTrigger />
-          {children}
+          <div className="p-4">
+            <h1 className="text-2xl font-bold">Welcome, Sysadmin!</h1>
+            {/* Add your content here */}
+          </div>
         </main>
       </SidebarProvider>
     </>
   );
-};
-
-export default sysadminPage;
+}

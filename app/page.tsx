@@ -1,14 +1,14 @@
-import { AppSidebar } from "./components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function Home({ children }: { children: React.ReactNode }) {
+import { AppSidebar } from "./components/app-sidebar";
+
+export default function Home() {
   return (
     <>
       <SidebarProvider>
-        <AppSidebar role={"admin"} />
+        <AppSidebar role={"admin"} id="some-id" />
         <main>
           <SidebarTrigger />
-          {children}
         </main>
       </SidebarProvider>
     </>

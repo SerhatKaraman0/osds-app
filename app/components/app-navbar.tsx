@@ -1,19 +1,19 @@
 "use client";
 
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Bug } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bug } from "lucide-react";
-
-import SVGComponent from "./coin-svg";
-
-import Link from "next/link";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+
+import SVGComponent from "./coin-svg";
 
 export default function NavbarComponent({ role }: { role: string }) {
   return (
@@ -106,7 +106,7 @@ export default function NavbarComponent({ role }: { role: string }) {
   );
 }
 
-function MenuIcon(props) {
+function MenuIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -127,7 +127,7 @@ function MenuIcon(props) {
   );
 }
 
-function MountainIcon(props) {
+function MountainIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

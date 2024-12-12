@@ -1,14 +1,18 @@
-import { AppSidebar } from "../components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-const studentPage = ({ children }: { children: React.ReactNode }) => {
+import { AppSidebar } from "../components/app-sidebar";
+
+interface StudentPageProps {
+  params: { studentId: string };
+}
+
+const studentPage = ({ params }: StudentPageProps) => {
   return (
     <>
       <SidebarProvider>
-        <AppSidebar role={"student"} id={params.studentId}/>
+        <AppSidebar role={"student"} id={params.studentId} />
         <main>
           <SidebarTrigger />
-          {children}
         </main>
       </SidebarProvider>
     </>

@@ -20,7 +20,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const adminItems = (sysadminId) => [
+const adminItems = (sysadminId: string) => [
   {
     title: "Admin",
     url: `/sysadmin/${sysadminId}/admins`,
@@ -43,7 +43,7 @@ const adminItems = (sysadminId) => [
   },
 ];
 
-const staffItems = (staffId) => [
+const staffItems = (staffId: string) => [
   {
     title: "Students",
     url: `/staff/${staffId}/students`,
@@ -56,7 +56,7 @@ const staffItems = (staffId) => [
   },
 ];
 
-const studentItems = (studentId) => [
+const studentItems = (studentId: string) => [
   {
     title: "Certificates",
     url: `/student/${studentId}/certificates`,
@@ -75,7 +75,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ role, id }: AppSidebarProps) {
-  let items;
+  let items: { title: string; url: string; icon: React.ComponentType }[];
 
   switch (role) {
     case "admin":

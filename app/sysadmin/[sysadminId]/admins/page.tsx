@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+
 import NavbarComponent from "@/app/components/app-navbar";
 import SysadminAdminTable from "@/app/components/sysadmin-admin-table"; // Ensure the correct import
-import { SysadminAccountDetails } from "@/models/interfaces";
-import React, { useEffect, useState } from "react";
+import { SysadminAccountDetails } from "@/app/models/interfaces";
 
 export default function SysadminAdminPage() {
   const [data, setData] = useState<SysadminAccountDetails[]>([]);

@@ -1,13 +1,13 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+
 import NavbarComponent from "@/app/components/app-navbar";
 import StaffStudentsTable from "@/app/components/staff-students-table";
 import { StudentAccountDetails } from "@/app/models/interfaces";
-import React, { useEffect, useState } from "react";
 
-
-export default function staffRequestsPage(){
-  const [data, setData] = useState<RequestDetails[]>([]);
+export default function StaffStudentsPage() {
+  const [data, setData] = useState<StudentAccountDetails[]>([]);
 
   useEffect(() => {
     fetch("http://localhost:8080/backend/students")

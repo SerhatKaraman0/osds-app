@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,6 +11,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
+import * as React from "react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -29,32 +30,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SysadminAccountDetails } from "@/models/interfaces";
+
+import { SysadminAccountDetails } from "../models/interfaces";
 
 interface SysadminAccountTableProps {
   data: SysadminAccountDetails[];
 }
 const sysadminColumns: ColumnDef<SysadminAccountDetails>[] = [
-    {
-        accessorKey: "something",
-        header: ({ table }) => (
-            <Checkbox
-              checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && "indeterminate")
-              }
-              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-              aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-        <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-        />
-        ),
-      },
+  {
+    accessorKey: "something",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  },
   {
     accessorKey: "sysadmin_id",
   },
@@ -84,24 +86,29 @@ const sysadminColumns: ColumnDef<SysadminAccountDetails>[] = [
     accessorKey: "actions",
     header: "Actions",
     cell: ({ row }) => {
-        return (
-            <div className="flex space-x-2">
-                <Button variant="outline" onClick={() => handleUpdate(row.original)}>
-                    Update
-                </Button>
-                <Button variant="destructive" onClick={() => handleDelete(row.original)}>
-                    Delete
-                </Button>       
-                </div>
-            );              
+      return (
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => handleUpdate(row.original)}>
+            Update
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => handleDelete(row.original)}
+          >
+            Delete
+          </Button>
+        </div>
+      );
     },
   },
 ];
 
-export default function SysadminAdminTable({ data }: SysadminAccountTableProps) {
+export default function SysadminAdminTable({
+  data,
+}: SysadminAccountTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -132,7 +139,9 @@ export default function SysadminAdminTable({ data }: SysadminAccountTableProps) 
         <div className="flex justify-center items-center py-4">
           <Input
             placeholder="Filter ids..."
-            value={(table.getColumn("sysadmin_id")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("sysadmin_id")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
               table.getColumn("sysadmin_id")?.setFilterValue(event.target.value)
             }
@@ -177,7 +186,7 @@ export default function SysadminAdminTable({ data }: SysadminAccountTableProps) 
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -196,7 +205,7 @@ export default function SysadminAdminTable({ data }: SysadminAccountTableProps) 
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -244,11 +253,11 @@ export default function SysadminAdminTable({ data }: SysadminAccountTableProps) 
   );
 }
 function handleUpdate(sysadmin: SysadminAccountDetails) {
-    // Implement the update logic here
-    console.log("Update", sysadmin);
+  // Implement the update logic here
+  console.log("Update", sysadmin);
 }
 
 function handleDelete(sysadmin: SysadminAccountDetails) {
-    // Implement the delete logic here
-    console.log("Delete", sysadmin);
+  // Implement the delete logic here
+  console.log("Delete", sysadmin);
 }

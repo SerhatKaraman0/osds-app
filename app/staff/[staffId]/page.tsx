@@ -1,7 +1,5 @@
-import { AppSidebar } from "@/app/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import NavbarComponent from "@/app/components/app-navbar";
-
+import { AppSidebar } from "@/app/components/app-sidebar";
 import {
   Card,
   CardContent,
@@ -9,19 +7,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function staffPage({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-}) {
+interface StaffPageProps {
+  params: {
+    staffId: string;
+  };
+}
+
+export default function StaffPage({ params }: StaffPageProps) {
   return (
     <>
       <SidebarProvider defaultOpen={false}>
-        <AppSidebar role={"staff"} id={params.staffId}/>
+        <AppSidebar role="staff" id={params.staffId} />
         <main>
-        <NavbarComponent role={""}/>
+          <NavbarComponent role="" />
           <h1 className="pl-7 text-3xl m-0">Welcome Staff {params.staffId},</h1>
           <div className="flex items-center justify-center mt-20">
             <div className="flex flex-row">
@@ -57,7 +57,6 @@ export default function staffPage({
             </div>
           </div>
           <SidebarTrigger className="mt-32" />
-          {children}
         </main>
       </SidebarProvider>
     </>

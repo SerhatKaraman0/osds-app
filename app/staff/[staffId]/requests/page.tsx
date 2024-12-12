@@ -1,12 +1,12 @@
 "use client";
 
-import NavbarComponent from "@/app/components/app-navbar";
-import  StaffRequestsTable from "@/app/components/staff-requests-table"; // Ensure the correct import
-import { RequestDetails } from "@/app/models/interfaces";
 import React, { useEffect, useState } from "react";
 
+import NavbarComponent from "@/app/components/app-navbar";
+import StaffRequestsTable from "@/app/components/staff-requests-table"; // Ensure the correct import
+import { RequestDetails } from "@/app/models/interfaces";
 
-export default function staffRequestsPage(){
+export default function StaffRequestsPage() {
   const [data, setData] = useState<RequestDetails[]>([]);
 
   useEffect(() => {
