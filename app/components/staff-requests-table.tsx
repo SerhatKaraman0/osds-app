@@ -124,7 +124,7 @@ const requestColumns: ColumnDef<RequestDetails>[] = [
     cell: () => {
       return (
         <div className="flex space-x-2">
-          <Button variant="outline">Approve</Button>
+          <Button variant="outline" className="bg-green-300">Approve</Button>
           <Button variant="destructive">Deny</Button>
         </div>
       );
@@ -212,9 +212,9 @@ export default function StaffRequestsTable({ data }: RequestsTableProps) {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}

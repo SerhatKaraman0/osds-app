@@ -12,6 +12,15 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import * as React from "react";
 
@@ -120,10 +129,50 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
     cell: () => {
       return (
         <div className="flex space-x-2">
-          <Button variant="outline">Update</Button>
-          <Button variant="destructive">Delete</Button>
+          <Dialog>
+            <DialogTrigger><Button variant="outline">Edit</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Student Information</DialogTitle>
+                <DialogDescription>
+                  Update the student's information below.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="space-y-4">
+                <div>
+                  <label htmlFor="std_name" className="block text-sm font-medium text-gray-700">
+                    Name
+                  </label>
+                  <Input id="std_name" name="std_name" type="text" required />
+                </div>
+                <div>
+                  <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                    Department
+                  </label>
+                  <Input id="department" name="department" type="text" required />
+                </div>
+                <div>
+                  <label htmlFor="std_academic_year" className="block text-sm font-medium text-gray-700">
+                    Academic Year
+                  </label>
+                  <Input id="std_academic_year" name="std_academic_year" type="text" required />
+                </div>
+                <div>
+                  <label htmlFor="std_semester" className="block text-sm font-medium text-gray-700">
+                    Semester
+                  </label>
+                  <Input id="std_semester" name="std_semester" type="text" required />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button type="submit" variant="primary" className="bg-green-300">Save</Button>
+                  <Button type="button" variant="outline">Cancel</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       );
+
     },
   },
 ];
@@ -212,9 +261,9 @@ export default function StaffStudentsTable({ data }: StudentsTableProps) {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}
