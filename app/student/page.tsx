@@ -5,7 +5,7 @@ const studentPage = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <SidebarProvider>
-        <AppSidebar role={"student"} id={params.stude}/>
+        <AppSidebar role={"student"} id={params.studentId}/>
         <main>
           <SidebarTrigger />
           {children}
