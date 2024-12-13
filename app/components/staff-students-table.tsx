@@ -164,7 +164,7 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
                   <Input id="std_semester" name="std_semester" type="text" required />
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button type="submit" variant="primary" className="bg-green-300">Save</Button>
+                  <Button type="submit" variant="default" className="bg-green-300">Save</Button>
                   <Button type="button" variant="outline">Cancel</Button>
                 </div>
               </form>
