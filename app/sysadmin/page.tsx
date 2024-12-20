@@ -1,12 +1,18 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 import { AppSidebar } from "../components/app-sidebar";
+import { getSession } from "@/actions";
+import { redirect } from "next/navigation";
 
-export default function SysadminPage() {
+
+const SysadminPage = async () => {
+  const session = await getSession();
+  
+
   return (
     <>
       <SidebarProvider>
-        <AppSidebar role="admin" id="some_id"/>
+        <AppSidebar role="admin" id="some_id" />
         <main>
           <SidebarTrigger />
           <div className="p-4">
@@ -18,3 +24,5 @@ export default function SysadminPage() {
     </>
   );
 }
+
+export default SysadminPage;

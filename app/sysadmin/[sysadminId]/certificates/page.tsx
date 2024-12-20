@@ -1,6 +1,8 @@
 import NavbarComponent from "@/app/components/app-navbar";
+import { getSession } from "@/actions";
 
-export default function SysadminCertificatePage() {
+
+const SysadminCertificatePage = async () => {
   return (
     <>
       <NavbarComponent role={""} />
@@ -8,3 +10,5 @@ export default function SysadminCertificatePage() {
     </>
   );
 }
+
+export default SysadminCertificatePage; 

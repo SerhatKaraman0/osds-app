@@ -96,7 +96,7 @@ const staffColumns: ColumnDef<StaffAccountDetails>[] = [
   },
 ];
 
-export default function SysadminAdminTable({ data }: SysadminStaffTableProps) {
+export default function SysadminAdminTable({ data = [] }: SysadminStaffTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -130,9 +130,9 @@ export default function SysadminAdminTable({ data }: SysadminStaffTableProps) {
         <div className="flex justify-center items-center py-4">
           <Input
             placeholder="Filter emails..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+            value={(table.getColumn("staff_id")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
+              table.getColumn("staff_id")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
@@ -174,9 +174,9 @@ export default function SysadminAdminTable({ data }: SysadminStaffTableProps) {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}

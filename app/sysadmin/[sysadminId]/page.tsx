@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export default function sysadminPage({ params }: { params: { sysadminId: string } }) {
+export default function sysadminPage({ params }) {
   return (
     <div className="flex">
       <SidebarProvider defaultOpen={false}>

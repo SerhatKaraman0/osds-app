@@ -141,31 +141,36 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
               <form className="space-y-4">
                 <div>
                   <label htmlFor="std_name" className="block text-sm font-medium text-gray-700">
+                    Student ID
+                  </label>
+                  <Input id="std_id" name="std_id" type="text" />
+                </div>
+                <div>
+                  <label htmlFor="std_name" className="block text-sm font-medium text-gray-700">
                     Name
                   </label>
-                  <Input id="std_name" name="std_name" type="text" required />
+                  <Input id="std_name" name="std_name" type="text" />
                 </div>
                 <div>
                   <label htmlFor="department" className="block text-sm font-medium text-gray-700">
                     Department
                   </label>
-                  <Input id="department" name="department" type="text" required />
+                  <Input id="department" name="department" type="text" />
                 </div>
                 <div>
                   <label htmlFor="std_academic_year" className="block text-sm font-medium text-gray-700">
                     Academic Year
                   </label>
-                  <Input id="std_academic_year" name="std_academic_year" type="text" required />
+                  <Input id="std_academic_year" name="std_academic_year" type="text" />
                 </div>
                 <div>
                   <label htmlFor="std_semester" className="block text-sm font-medium text-gray-700">
                     Semester
                   </label>
-                  <Input id="std_semester" name="std_semester" type="text" required />
+                  <Input id="std_semester" name="std_semester" type="text" />
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button type="submit" variant="default" className="bg-green-300">Save</Button>
-                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="submit" variant="default" className="bg-green-700">Save</Button>
                 </div>
               </form>
             </DialogContent>

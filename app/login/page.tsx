@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { login } from "@/actions";
 
 function generateRandomText(length: number) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789defghijklmnopqrstuvwxyz0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -19,21 +20,31 @@ function generateRandomText(length: number) {
 
 export default function AuthPage() {
     const [randomText, setRandomText] = useState(generateRandomText(1200));
+    const [key, setKey] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     useEffect(() => {
         const interval = setInterval(() => {
             setRandomText(generateRandomText(1200));
-        }, 1000);
+        }, 5000); // Reduced interval time to improve performance
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        return () => clearInterval(interval);
     }, []);
     return (
         <>
-            <NavbarComponent role={""} />
+            <NavbarComponent role={"login"} />
             <div className="flex h-full">
                 <div className="w-1/2 h-full mt-20 pl-20">
                     <div className="whitespace-pre-wrap break-words">
-                        {randomText}
+                        {randomText.split('').map((char, index) => (
+                            <span
+                                key={index}
+                                style={{ color: char === char.toUpperCase() && isNaN(char) ? 'red' : 'black' }}
+                            >
+                                {char}
+                            </span>
+                        ))}
                     </div>
                 </div>
                 <div className="w-1/2 h-full mt-20 bg-white flex items-center justify-center">
@@ -53,6 +64,8 @@ export default function AuthPage() {
                                         <Input
                                             id="encryption-key"
                                             placeholder="some-generated-key"
+                                            value={key}
+                                            onChange={(e) => setKey(e.target.value)}
                                         />
                                     </div>
                                     <div className="space-y-1">
@@ -60,6 +73,8 @@ export default function AuthPage() {
                                         <Input
                                             id="user-name"
                                             placeholder="user_name"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
                                         />
                                     </div>
                                     <div className="space-y-1">
@@ -68,11 +83,21 @@ export default function AuthPage() {
                                             id="password"
                                             type="password"
                                             placeholder="Your password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
                                         />
                                     </div>
                                 </CardContent>
                                 <CardFooter className="flex flex-col items-center space-y-2">
-                                    <Button className="w-[350px]">
+                                    <Button className="w-[350px]" onClick={async () => {
+                                        const res = await login(key, username, password);
+                                        if (res.success) {
+                                            window.location.href = res.redirectUrl;
+                                        } else {
+                                            console.error(res.error);
+                                            alert(res.error);
+                                        }
+                                    }}>
                                         Login
                                     </Button>
                                 </CardFooter>

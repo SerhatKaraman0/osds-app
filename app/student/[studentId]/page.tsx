@@ -13,11 +13,7 @@ interface StudentPageProps {
   params: { studentId: string };
 }
 
-export default function StudentPage({ params }: StudentPageProps) {
-  if (!params?.studentId) {
-    return <div>Error: Missing student ID</div>;
-  }
-
+const StudentPage = async ({ params }: StudentPageProps) => {
   return (
     <>
       <SidebarProvider defaultOpen={false}>
@@ -67,3 +63,5 @@ export default function StudentPage({ params }: StudentPageProps) {
     </>
   );
 }
+
+export default StudentPage;

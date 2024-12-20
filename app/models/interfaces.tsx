@@ -33,3 +33,20 @@ export type RequestDetails = {
   request_state: string;
   request_date: string;
 };
+
+export type CertificateDetails {
+  id: number;
+  certificate_id: string;
+  sender_id: string;
+  date: string;
+}
+
+
+export type InvoiceDetails {
+  id: number;
+  invoice_id: string;
+  sender_id: string;
+  amount: number;
+  date: string;
+}
+
