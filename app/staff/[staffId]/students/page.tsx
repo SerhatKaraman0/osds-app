@@ -1,28 +1,11 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import NavbarComponent from "@/app/components/app-navbar";
 import StaffStudentsTable from "@/app/components/staff-students-table";
 import { StudentAccountDetails } from "@/app/models/interfaces";
+import { getStudents_Staff } from "@/app/api/actions";
 
-export default function StaffStudentsPage() {
-  const [data, setData] = useState<StudentAccountDetails[]>([]);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/backend/students");
-        const result = await response.json();
-        setData(result.students);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  });
-
+export default async function StaffStudentsPage() {
+  const data = await getStudents_Staff();
   return (
     <>
       <NavbarComponent role={"staff"} />

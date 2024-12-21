@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -19,11 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-
-import { ArrowUpDown, ChevronDown } from "lucide-react";
-import * as React from "react";
-
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -41,7 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import { toast } from "sonner";
+import { ChevronDown, ArrowUpDown } from "lucide-react";
+import { updateStudentInfo } from "../api/actions";
 import { StudentAccountDetails } from "../models/interfaces";
 
 const studentColumns: ColumnDef<StudentAccountDetails>[] = [
@@ -66,8 +65,8 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
     ),
   },
   {
-    id: "std_id",
-    accessorKey: "std_id",
+    id: "id",
+    accessorKey: "id",
   },
   {
     accessorKey: "std_name",
@@ -79,58 +78,74 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
   },
   {
     accessorKey: "std_academic_year",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Student Academic Year
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-  },
-  {
-    accessorKey: "std_semester",
-    header: "Semester",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Academic Year
+        <ArrowUpDown />
+      </Button>
+    ),
   },
   {
     accessorKey: "credits",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Credits
-          <ArrowUpDown />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Credits
+        <ArrowUpDown />
+      </Button>
+    ),
   },
   {
     accessorKey: "register_date",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Register Date
-          <ArrowUpDown />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Register Date
+        <ArrowUpDown />
+      </Button>
+    ),
   },
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: () => {
+    cell: ({ row }) => {
+      const [studentId, setStudentId] = useState("");
+      const [department, setDepartment] = useState("");
+      const [academicYear, setAcademicYear] = useState("");
+      const [semester, setSemester] = useState("");
+
+      const handleSave = async () => {
+        try {
+          const response = await updateStudentInfo(
+            row.original.id,
+            studentId,
+            department,
+            academicYear,
+            semester
+          );
+          if (response) {
+            toast.success("Student information updated successfully.");
+          } else {
+            toast.error("Failed to update student information.");
+          }
+        } catch (error) {
+          toast.error("An error occurred while updating.");
+        }
+      };
+
       return (
         <div className="flex space-x-2">
           <Dialog>
-            <DialogTrigger><Button variant="outline">Edit</Button></DialogTrigger>
+            <DialogTrigger>
+              <Button variant="outline">Edit</Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Edit Student Information</DialogTitle>
@@ -140,44 +155,76 @@ const studentColumns: ColumnDef<StudentAccountDetails>[] = [
               </DialogHeader>
               <form className="space-y-4">
                 <div>
-                  <label htmlFor="std_name" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="std_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Student ID
                   </label>
-                  <Input id="std_id" name="std_id" type="text" />
+                  <Input
+                    id="std_id"
+                    type="text"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label htmlFor="std_name" className="block text-sm font-medium text-gray-700">
-                    Name
-                  </label>
-                  <Input id="std_name" name="std_name" type="text" />
-                </div>
-                <div>
-                  <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="department"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Department
                   </label>
-                  <Input id="department" name="department" type="text" />
+                  <Input
+                    id="department"
+                    type="text"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label htmlFor="std_academic_year" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="std_academic_year"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Academic Year
                   </label>
-                  <Input id="std_academic_year" name="std_academic_year" type="text" />
+                  <Input
+                    id="std_academic_year"
+                    type="text"
+                    value={academicYear}
+                    onChange={(e) => setAcademicYear(e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label htmlFor="std_semester" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="std_semester"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Semester
                   </label>
-                  <Input id="std_semester" name="std_semester" type="text" />
+                  <Input
+                    id="std_semester"
+                    type="text"
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
+                  />
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <Button type="submit" variant="default" className="bg-green-700">Save</Button>
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="bg-green-700"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
         </div>
       );
-
     },
   },
 ];
@@ -187,13 +234,10 @@ interface StudentsTableProps {
 }
 
 export default function StaffStudentsTable({ data }: StudentsTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
     data,
@@ -215,78 +259,45 @@ export default function StaffStudentsTable({ data }: StudentsTableProps) {
   });
 
   return (
-    <div className="flex justify-center items-start mt-18">
+    <div className="flex justify-center items-start mt-8">
       <div className="w-4/5">
-        <div className="flex justify-center items-center py-4">
-          <Input
-            placeholder="Filter ids..."
-            value={
-              (table.getColumn("sysadmin_id")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("sysadmin_id")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <Input
+          placeholder="Filter students..."
+          value={
+            (table.getColumn("std_name")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(e) =>
+            table.getColumn("std_name")?.setFilterValue(e.target.value)
+          }
+          className="mb-4"
+        />
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
+                  <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     ))}
@@ -296,38 +307,32 @@ export default function StaffStudentsTable({ data }: StudentsTableProps) {
                 <TableRow>
                   <TableCell
                     colSpan={studentColumns.length}
-                    className="h-24 text-center"
+                    className="text-center"
                   >
-                    No results.
+                    No data available.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
+        <div className="flex justify-end mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>

@@ -54,12 +54,13 @@ export const login = async (key, user_name, password) => {
         if (!user) {
             return { error: "Wrong credentials" };
         }
-
+        console.log(user);
         session.userId = user.user.id;
-        session.userName = user.user.username;
+        session.userName = user_name;
         session.role = user.user.role;
         session.isLoggedIn = true;
         session.balance = user.user.credits;
+
 
         if (user.user.role === "student") {
             session.assigned_admin_id = user.user.assigned_admin_id

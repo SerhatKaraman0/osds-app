@@ -2,7 +2,7 @@
 
 import { Bug } from "lucide-react";
 import Link from "next/link";
-
+import { NextResponse } from "next/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,8 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import React, { useEffect, useState } from "react";
 import SVGComponent from "./coin-svg";
 import { getSession, logout } from "@/actions";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
+import { toast } from "sonner";
 import { emitWarning } from "process";
 import { redirect } from "next/dist/server/api-utils";
 
@@ -167,7 +168,9 @@ export default function NavbarComponent({ role }: { role: string }) {
           {role !== "login" ? (
             <Button variant="destructive" onClick={async () => {
               await logout();
-              redirect("/login");
+              return NextResponse.redirect(
+                new URL("http://localhost:3000/login")
+              )
             }}>
               Logout
             </Button>

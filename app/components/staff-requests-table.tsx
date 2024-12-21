@@ -1,8 +1,10 @@
+"use client";
 import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  RowExpanding,
   SortingState,
   VisibilityState,
   flexRender,
@@ -12,6 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { postTranscriptRequest } from "../api/actions";
 import { toast } from "sonner";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/actions";
+
 
 interface RequestDetails {
   id: number;
@@ -116,59 +120,88 @@ const REQUEST_STATE_ORDER = {
 };
 
 const TranscriptDialog = React.memo(({ studentId }: { studentId: string }) => {
-  const [email, setEmail] = useState("");
+  const [courses, setCourses] = useState<{ course_code: string; course_name: string, grade: string, cr: string }[]>(
+    Array(5).fill({ course_code: "", course_name: "", grade: "", ch: "16", cr: "" })
+  );
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      // Add your transcript sending logic here
-      toast.success("Transcript sent successfully");
-    } catch (error) {
-      toast.error("Failed to send transcript");
-    }
-  }, [email]);
+  const autoPopulateCourses = () => {
+    const sampleCourses = [
+      { course_code: "CS101", course_name: "Computer Science 101", grade: "A", ch:"16", cr: "4" },
+      { course_code: "MATH101", course_name: "Calculus I", grade: "B", ch:"9", cr: "3" },
+      { course_code: "ENG101", course_name: "English Literature", grade: "B", ch:"9", cr: "3" },
+      { course_code: "HIST101", course_name: "History of the World", grade: "A-", ch:"14.8", cr: "4" },
+      { course_code: "PHYS101", course_name: "Physics I", grade: "A-", ch:"14.8", cr: "4" },
+    ];
+    setCourses(sampleCourses);
+  };
+
+
+  const updateCourse = (index: number, field: string, value: string) => {
+    setCourses((prev) =>
+      prev.map((course, i) => (i === index ? { ...course, [field]: value } : course))
+    );
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Send Transcript</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Send Transcript</DialogTitle>
-          <DialogDescription>
-            Enter the email address where you'd like to send the transcript.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="recipient-email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="recipient-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="recipient@example.com"
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Student ID</Label>
-              <div className="col-span-3 text-sm text-muted-foreground">
-                {studentId}
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline">Send Transcript</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Send Transcript</DialogTitle>
+            <DialogDescription>
+              Enter the course codes and grades
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={postTranscriptRequest}>
+            {courses.map((course, index) => (
+              <div key={index} className="grid grid-cols-4 items-center gap-4 mb-4">
+                <Label className="text-right">Course {index + 1}</Label>
+                <div className="col-span-3 grid grid-cols-4 gap-4">
+                  <Input
+                    placeholder="Course Code"
+                    value={course.course_code}
+                    onChange={(e) => updateCourse(index, 'course_code', e.target.value)}
+                    required
+                  />
+                  <Input
+                    placeholder="Course Name"
+                    value={course.course_name}
+                    onChange={(e) => updateCourse(index, 'course_name', e.target.value)}
+                    required
+                  />
+                  <Input
+                    placeholder="Grade"
+                    value={course.grade}
+                    onChange={(e) => updateCourse(index, 'grade', e.target.value)}
+                    required
+                  />
+                  <Input
+                    placeholder="Cr."
+                    value={course.cr}
+                    onChange={(e) => updateCourse(index, 'cr', e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Send Transcript</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            ))}
+            <DialogFooter className="mt-6">
+              <Button type="button" onClick={() => { autoPopulateCourses() }}>Auto Populate</Button>
+              <Button type="submit" onClick={async () => {
+                const result = await postTranscriptRequest(studentId, courses)
+                if (result.success) {
+                  toast.success("Transcript sent successfully");
+                } else {
+                  toast.error("Error sending transcript");
+                }
+              }}>Send</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog >
+    </>
   );
 });
 

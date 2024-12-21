@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import NavbarComponent from "@/app/components/app-navbar";
 import { AppSidebar } from "@/app/components/app-sidebar";
@@ -19,19 +18,7 @@ interface StaffPageProps {
 
 export default function StaffPage({ params }: StaffPageProps) {
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/backend/students");
-        const result = await response.json();
-        setData(result.students);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  });
+  
 
   return (
     <>
