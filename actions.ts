@@ -22,7 +22,7 @@ export const fetchUserData = async (key, user_name, password) => {
 export async function backendLogin(user_name: string) {
     const ws = new WebSocket(`ws://0.0.0.0:8080/backend/websockets/ws/${user_name}`)
     ws.on('open', () => {
-        console.log('Connected to server');
+  
       
         ws.send('Hello, server!');
       });

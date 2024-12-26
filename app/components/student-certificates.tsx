@@ -1,4 +1,6 @@
 "use client";
+
+import React, { useState } from "react";
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -12,7 +14,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
-import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +38,8 @@ import { CertificateDetails } from "../models/interfaces";
 interface StudentCertificateTableProps {
     data: CertificateDetails[];
 }
+
+// Columns configuration
 const certificateColumns: ColumnDef<CertificateDetails>[] = [
     {
         accessorKey: "something",
@@ -60,54 +63,53 @@ const certificateColumns: ColumnDef<CertificateDetails>[] = [
     },
     {
         accessorKey: "id",
+        header: "ID",
     },
     {
-        accessorKey: "certificate_id",
-        header: "Certificate ID",
-    },
-    {
-        accessorKey: "sender_id",
+        accessorKey: "sender_staff_id",
         header: "Sender ID",
     },
     {
         accessorKey: "date",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Sent Date
-                    <ArrowUpDown />
-                </Button>
-            );
-        },
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Sent Date
+                <ArrowUpDown />
+            </Button>
+        ),
     },
     {
-        accessorKey: "actions",
+        accessorKey: "firebase_url",
         header: "Actions",
         cell: ({ row }) => {
             return (
-                <div className="flex space-x-2">
-                    <Button variant="outline" onClick={() => handleView(row.original)}>
-                        View
-                    </Button>
-                </div>
+                <div className="flex space-x-2" >
+                    <a href={row.original.firebase_url} download>
+                        <img src={row.original.firebase_url} alt="Receipt" className="w-8 h-8" />
+                    </a>
+                </div >
             );
-        },
+        }
+
+
     },
 ];
+
+// View handler function
+function handleView(row: CertificateDetails) {
+    console.log("View action for:", row);
+}
 
 export default function StudentCertificateTable({
     data,
 }: StudentCertificateTableProps) {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        [],
-    );
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = useState({});
 
     const table = useReactTable({
         data,
@@ -131,17 +133,17 @@ export default function StudentCertificateTable({
     return (
         <div className="flex justify-center items-start mt-18">
             <div className="w-4/5">
+                {/* Filter Input */}
                 <div className="flex justify-center items-center py-4">
                     <Input
-                        placeholder="Filter ids..."
-                        value={
-                            (table.getColumn("sysadmin_id")?.getFilterValue() as string) ?? ""
-                        }
+                        placeholder="Filter by ID..."
+                        value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("sysadmin_id")?.setFilterValue(event.target.value)
+                            table.getColumn("id")?.setFilterValue(event.target.value)
                         }
                         className="max-w-sm"
                     />
+                    {/* Column Visibility Dropdown */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
@@ -152,40 +154,38 @@ export default function StudentCertificateTable({
                             {table
                                 .getAllColumns()
                                 .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    );
-                                })}
+                                .map((column) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                    >
+                                        {column.id}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
+
+                {/* Table */}
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext(),
-                                                    )}
-                                            </TableHead>
-                                        );
-                                    })}
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    ))}
                                 </TableRow>
                             ))}
                         </TableHeader>
@@ -200,7 +200,7 @@ export default function StudentCertificateTable({
                                             <TableCell key={cell.id}>
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
-                                                    cell.getContext(),
+                                                    cell.getContext()
                                                 )}
                                             </TableCell>
                                         ))}
@@ -219,6 +219,8 @@ export default function StudentCertificateTable({
                         </TableBody>
                     </Table>
                 </div>
+
+                {/* Pagination Controls */}
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <div className="flex-1 text-sm text-muted-foreground">
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
@@ -247,8 +249,3 @@ export default function StudentCertificateTable({
         </div>
     );
 }
-function handleView() {
-    // Implement the update logic here
-    console.log("View");
-}
-

@@ -26,7 +26,7 @@ export const getStudents_Staff = async () => {
     const user = await getSession();
     const response = await fetch(`http://localhost:8080/frontend/students/${user.userId}`);
     const result = await response.json();
-    if (result.message !== "success") {
+    if (!result.success) {
         return [];
     }
     return result.students;
@@ -36,7 +36,7 @@ export const getRequests_Request = async () => {
     const user = await getSession();
     const response = await fetch(`http://localhost:8080/frontend/requests/${user.userId}`);
     const result = await response.json();
-    if (result.message !== "success") {
+    if (!result.success) {
         return [];
     }
     return result.requests;
@@ -74,7 +74,7 @@ export const createAdmin = async (adminName, userName, pwd) => {
     }
 }
 
-const createStaff = async (staffName, userName, pwd) => {
+export const createStaff = async (staffName, userName, pwd) => {
     const user = await getSession();
     const url = `http://0.0.0.0:8080/backend/create/staff/${user.userId}`;
     const data = {
@@ -108,7 +108,7 @@ const createStaff = async (staffName, userName, pwd) => {
     }
 }
 
-const createStudent = async (studentName, userName, pwd) => {
+export const createStudent = async (studentName, userName, pwd, assigned_staff_id) => {
     const user = await getSession();
     const url = `http://0.0.0.0:8080/backend/create/student/${user.userId}`;
     const data = {
@@ -122,7 +122,7 @@ const createStudent = async (studentName, userName, pwd) => {
         credits: 0,
         role: "student",
         assigned_admin_id: user.userId,
-        assigned_staff_id: 0
+        assigned_staff_id: assigned_staff_id
     };
 
     try {
@@ -137,7 +137,6 @@ const createStudent = async (studentName, userName, pwd) => {
 
         if (response.ok) {
         const responseData = await response.json();
-        console.log(responseData);
         return responseData;
         } else {
         console.error("Failed to create student:", response.status, response.statusText);
@@ -147,19 +146,18 @@ const createStudent = async (studentName, userName, pwd) => {
     }
 }
 
-export const createUser = async (usernameName, userName, pwd, role) => {
+export const createUser = async (usernameName, userName, pwd, role, assigned_staff_id) => {
     if (role === "sysadmin") {
         const response = await createAdmin(usernameName, userName, pwd);
         return response;
     } else if (role === "student") {
-        const response = await createStudent(usernameName, userName, pwd);
+        const response = await createStudent(usernameName, userName, pwd, assigned_staff_id);
         return response;
     } else if (role === "staff") {
         const response = await createStaff(usernameName, userName, pwd);
         return response;
     }
 }
-
 
 export const updateStudentInfo = async (id, studentId, department, academicYear, semester) => {
     const url = `http://0.0.0.0:8080/frontend/student/${id}/std_id/${studentId}/department/${department}/academic_year/${academicYear}/semester/${semester}`;
@@ -196,7 +194,7 @@ export const getStudentFromId = async (stdId) => {
 
         if (response.ok) {
             const responseData = await response.json();
-            return responseData;
+            return responseData.student;
         } else {
             console.error("Failed to get student info:", response.status, response.statusText);
         }
@@ -210,11 +208,11 @@ export const postTranscriptRequest = async (stdId, tableCourses) => {
     const user = await getSession();
 
     const transcriptData = {
-        owner_id: String(student.student.std_id),
-        sender_staff_id: String(user.userId),
-        academic_year: student.student.std_academic_year,
-        semester: student.student.std_semester,
-        department: student.student.department,
+        owner_id: student.std_id,
+        sender_staff_id: user.userId,
+        academic_year: student.std_academic_year,
+        semester: student.std_semester,
+        department: student.department,
         courses: tableCourses,
         gpa: "2.78",
         cgpa: "3.31",
@@ -222,12 +220,11 @@ export const postTranscriptRequest = async (stdId, tableCourses) => {
         cum_ch: "44",
         sem_cr: "44",
         cum_cr: "44",
-        acd_term: student.student.std_semester,
-        act_term: student.student.std_semester,
+        acd_term: student.std_semester,
+        act_term: student.std_semester,
         status: "string"
     };
-    console.log(transcriptData);
-    const result = await fetch(`http://0.0.0.0:8080/images/transcript/${user.userName}`, {
+    const result = await fetch(`http://localhost:8080/images/transcript/owner/${stdId}/sender/${user.userId}`, {
         method: 'POST',
         headers: {
             'accept': 'application/json',
@@ -237,6 +234,161 @@ export const postTranscriptRequest = async (stdId, tableCourses) => {
     })
 
     const response = await result.json();
+    console.log(response);
     return response;
     
+}
+
+export const verifyStudent_Invoice = async (stdId, staffId, invoice) => {
+    const response = await fetch(`http://localhost:8080/frontend/transactions/verify/student/${stdId}/staff/${staffId}/invoice/${invoice}`);
+    const data = response.json();
+
+    return data.success;
+}
+
+export const createRequest_Certificate = async (invoiceId) => {
+    const user = await getSession();
+
+    if (user.balance < 281) {
+        return {
+            "message": "Your Credits for action is not enough", 
+            "success": false
+        }
+    } 
+
+    const request = fetch(`http://localhost:8080/backend/create/request/${user.userId}/to/${user.assigned_staff_id}`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          request_id: 0,
+          request_sender_id: 0,
+          request_receiver_id: 0,
+          request_state: "string",
+          request_type: "transcript",
+          request_amount: 0
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        user.balance -= 281;
+        return response.json();
+      })
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+async function postReceipt(owner_id, sender_staff_id) {
+    const url = `http://localhost:8080/images/receipt/owner/${owner_id}/sender/${sender_staff_id}`;
+    
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+            },
+            body: null, 
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function createTransaction(sender, receiver, amount, receipt_url, reference_no) {
+    const url = `http://localhost:8080/backend/create/transaction/sender/${sender}/receiver/${receiver}/amount/${amount}`;
+    const requestData = {
+        transaction_id: 0,
+        sender_staff_id: sender,
+        receiver_student_id: receiver,
+        amount: amount,
+        receipt_photo_url: receipt_url,
+        reference_no: reference_no,
+        transaction_state: "approved",
+        timestamp: "string",
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+
+export const  updateStudentCredits = async (studentId, assigned_staff_id, newCredits) => {
+    const receipt = await postReceipt(studentId, assigned_staff_id);
+    const photoUrl = receipt.invoice.firebase_url;
+    const reference_no = receipt.invoice.reference_no;
+    const transaction = await createTransaction(assigned_staff_id, studentId , 281, photoUrl, reference_no);
+    const result = await fetch(`http://localhost:8080/backend/students/${studentId}/credits?new_credits=${newCredits}`, {
+      method: 'PUT',
+      headers: {
+        'accept': 'application/json'
+      }
+    });
+
+    const response = result.json()
+
+    return response;
+}
+
+export const getTransactionsByUserId = async (studentId) => {
+    const result = await fetch(`http://localhost:8080/frontend/transactions/${studentId}`, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    });
+
+    if (result.ok){
+        const response = await result.json();
+        return response.transactions;
+    }
+
+}
+
+export const getTranscriptsByUserId = async (studentId) => {
+    const result = await fetch(`http://localhost:8080/frontend/transcripts/${studentId}`, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    });
+
+    if (result.ok) {
+        const response = await result.json();
+
+        return response.certificates;
+    }
+    return [];
 }

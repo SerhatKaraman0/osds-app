@@ -1,4 +1,5 @@
 "use client";
+import { RotateCcw } from 'lucide-react';
 import NavbarComponent from "@/app/components/app-navbar";
 import { AppSidebar } from "@/app/components/app-sidebar";
 import {
@@ -9,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-
-import React, { useEffect, useState } from "react";
+} from "@/components/ui/dialog";
+import { getStaff, createUser } from "@/app/api/actions";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -29,51 +30,52 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { createUser } from "@/app/api/actions";
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+// This is how you fetch data in the app directory for Server Components
+async function fetchStaffData() {
+  const staffResponse = await getStaff();
 
-export default function sysadminPage({ params }) {
+  return staffResponse;
+}
+
+export default function SysadminPage({ params }) {
+  const [staff, setStaff] = useState([]);
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
   const [role, setRole] = useState("");
   const [pwd, setPwd] = useState("");
-  const [isClient, setIsClient] = useState(false);
+  const [assignedStaff, setAssignedStaff] = useState("");
 
   useEffect(() => {
-    setIsClient(true);
+    const fetchData = async () => {
+      const staffData = await fetchStaffData();
+      setStaff(staffData);
+    };
+    fetchData();
   }, []);
 
-  if (!isClient) {
-    return null;
-  }
-
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       <SidebarProvider defaultOpen={false}>
         <AppSidebar role={"admin"} id={params.sysadminId} />
-        <main>
+        <main className="lg:flex-1 p-6">
           <NavbarComponent role={""} />
-
-          <h1 className="pl-7 text-3xl m-0">
-            Welcome Admin {params.sysadminId},
-          </h1>
-          <div className="flex items-center justify-center mt-20">
-            <div className="flex flex-row">
-              <Card className="justify-center ml-8 h-80 w-80">
+          <h1 className="text-3xl font-bold mb-6">Welcome Admin {params.sysadminId}</h1>
+          <div className="flex items-center justify-center mt-10">
+            <div className="flex flex-col items-center space-y-6">
+              <Card className="w-full max-w-sm">
                 <CardHeader>
                   <CardTitle className="text-2xl">Create New</CardTitle>
-                  <CardDescription>
-                    Create new staff, student, admin
-                  </CardDescription>
+                  <CardDescription>Create new staff, student, admin</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline">Create User</Button>
+                      <Button variant="outline" className="w-full">Create User</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -87,19 +89,37 @@ export default function sysadminPage({ params }) {
                           <Label htmlFor="name" className="text-right">
                             Name
                           </Label>
-                          <Input id="name" placeholder="Serhat Karaman" className="col-span-3" value={name} onChange={(e) => setName(e.target.value)} />
+                          <Input
+                            id="name"
+                            placeholder="Serhat Karaman"
+                            className="col-span-3"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                          />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="username" className="text-right">
                             Username
                           </Label>
-                          <Input id="username" placeholder="serhat-role123" className="col-span-3" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                          <Input
+                            id="username"
+                            placeholder="serhat-role123"
+                            className="col-span-3"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                          />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="password" className="text-right">
                             Password
                           </Label>
-                          <Input id="password" placeholder="some-secure-password" className="col-span-3" value={pwd} onChange={(e) => setPwd(e.target.value)} />
+                          <Input
+                            id="password"
+                            placeholder="some-secure-password"
+                            className="col-span-3"
+                            value={pwd}
+                            onChange={(e) => setPwd(e.target.value)}
+                          />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="role" className="text-right">
@@ -119,20 +139,62 @@ export default function sysadminPage({ params }) {
                             </SelectContent>
                           </Select>
                         </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="role" className="text-right">
+                            Assign Staff
+                          </Label>
+                          <div className="col-span-3 flex items-center space-x-2">
+                            <Select onValueChange={(value) => setAssignedStaff(value)} disabled={role !== "student"}>
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Role</SelectLabel>
+                                  {staff.map((staffMember) => (
+                                    <SelectItem key={staffMember.id} value={staffMember.id}>
+                                      {staffMember.id}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                            <Button variant={"outline"} onClick={async () => {
+                              const updatedStaff = await fetchStaffData();
+                              setStaff(updatedStaff);
+                            }}><RotateCcw /></Button>
+                          </div>
+                        </div>
                       </div>
                       <DialogFooter>
-                        <Button type="submit" onClick={async () => {
-                          try {
-                            const response = await createUser(name, userName, pwd, role);
-                            if (response) {
-                              toast.success("User created successfully");
-                            } else {
-                              toast.error("Failed to create user");
+                        <Button
+                          type="submit"
+                          onClick={async () => {
+                            try {
+                              const response = await createUser(
+                                name,
+                                userName,
+                                pwd,
+                                role,
+                                assignedStaff
+                              );
+                              if (response) {
+                                toast.success("User created successfully");
+                                setName("");
+                                setUserName("");
+                                setPwd("");
+                                setRole("");
+                              } else {
+                                toast.error("Failed to create user");
+                              }
+                            } catch (error) {
+                              toast.error(
+                                "An error occurred while creating the user"
+                              );
                             }
-                          } catch (error) {
-                            toast.error("An error occurred while creating the user");
-                          }
-                        }}>
+                          }}
+                          className="w-full"
+                        >
                           Save changes
                         </Button>
                       </DialogFooter>
@@ -140,31 +202,10 @@ export default function sysadminPage({ params }) {
                   </Dialog>
                 </CardContent>
               </Card>
-              <Card className="justify-center ml-20 h-80 w-80">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-center">
-                    Total Users
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="pt-16 text-5xl text-center">40</p>
-                </CardContent>
-              </Card>
-              <Card className="justify-center ml-20 h-80 w-80">
-                <CardHeader>
-                  <CardTitle className="text-center text-2xl">
-                    Total Certificates Created
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-5xl text-center">120</p>
-                </CardContent>
-              </Card>
             </div>
           </div>
-          <SidebarTrigger className="mt-32" />
         </main>
       </SidebarProvider>
-    </div >
+    </div>
   );
 }

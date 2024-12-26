@@ -59,14 +59,15 @@ const invoiceColumns: ColumnDef<InvoiceDetails>[] = [
         ),
     },
     {
-        accessorKey: "id",
+        accessorKey: "transaction_id",
+        header: "ID",
     },
     {
-        accessorKey: "invoice_id",
-        header: "Invoice ID",
+        accessorKey: "reference_no",
+        header: "Reference No",
     },
     {
-        accessorKey: "sender_id",
+        accessorKey: "sender_staff_id",
         header: "Sender ID",
     },
     {
@@ -74,7 +75,7 @@ const invoiceColumns: ColumnDef<InvoiceDetails>[] = [
         header: "Amount",
     },
     {
-        accessorKey: "date",
+        accessorKey: "timestamp",
         header: ({ column }) => {
             return (
                 <Button
@@ -88,14 +89,14 @@ const invoiceColumns: ColumnDef<InvoiceDetails>[] = [
         },
     },
     {
-        accessorKey: "actions",
+        accessorKey: "receipt_photo_url",
         header: "Actions",
         cell: ({ row }) => {
             return (
                 <div className="flex space-x-2">
-                    <Button variant="outline" onClick={() => handleView(row.original)}>
-                        View
-                    </Button>
+                    <a href={row.original.receipt_photo_url} download>
+                        <img src={row.original.receipt_photo_url} alt="Receipt" className="w-8 h-8" />
+                    </a>
                 </div>
             );
         },
@@ -251,8 +252,5 @@ export default function StudentInvoiceTable({
         </div>
     );
 }
-function handleView() {
-    // Implement the update logic here
-    console.log("View");
-}
+
 

@@ -27,21 +27,19 @@ async function getUserBalance() {
 
 async function handleLoadCredit(creditAmount) {
   const user = await getSession();
-  const res = await fetch(`http://0.0.0.0:8080/backend/create/transaction/sender/${user.assigned_staff_id}/receiver/${user.userId}/amount/${Number(creditAmount)}`, {
+  const res = await fetch(`http://0.0.0.0:8080/backend/create/request/${user.userId}/to/${user.assigned_staff_id}/amount/${Number(creditAmount)}`, {
     method: 'POST',
     headers: {
       'accept': 'application/json',
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      transaction_id: 0,
-      sender_staff_id: user.assigned_staff_id,
-      receiver_student_id: user.userId,
-      amount: Number(creditAmount),
-      receipt_photo_url: "string",
-      reference_no: 0,
-      transaction_state: "string",
-      timestamp: new Date().toISOString()
+      request_id: 0,
+      request_sender_id: user.userId,
+      request_receiver_id: user.assigned_staff_id,
+      request_state: "pending",
+      request_type: "transaction",
+      request_amount: Number(creditAmount)
     })
   });
   return res.ok;
@@ -51,7 +49,16 @@ export default function NavbarComponent({ role }: { role: string }) {
   const [balance, setBalance] = useState(0);
   const [requestAmount, setRequestAmount] = useState(0);
 
+  const handleIncrement = () => {
+    setRequestAmount(prev => prev + 281);
+  };
+
+  const handleDecrement = () => {
+    setRequestAmount(prev => Math.max(0, prev - 281));
+  };
+
   const formattedBalance = balance.toString().padStart(5, '0');
+
   useEffect(() => {
     const fetchBalance = async () => {
       const user = await getSession();
@@ -65,6 +72,7 @@ export default function NavbarComponent({ role }: { role: string }) {
 
     fetchBalance();
   }, []);
+
   return (
     <>
       <Toaster richColors />
@@ -136,13 +144,30 @@ export default function NavbarComponent({ role }: { role: string }) {
                   <div className="grid gap-2">
                     <div className="grid grid-cols-3 items-center gap-4">
                       <Label htmlFor="credit">Credit Amount</Label>
-                      <Input
-                        id="credit"
-                        defaultValue="100"
-                        className="col-span-2 h-8"
-                        value={requestAmount}
-                        onChange={(e) => setRequestAmount(e.target.value)}
-                      />
+                      <div className="col-span-2 flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={handleDecrement}
+                          className="px-3 h-8"
+                        >
+                          -
+                        </Button>
+
+                        <Input
+                          id="credit"
+                          value={requestAmount}
+                          readOnly
+                          className="text-center h-8"
+                        />
+
+                        <Button
+                          variant="outline"
+                          onClick={handleIncrement}
+                          className="px-3 h-8"
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid items-center gap-4">
                       <Button variant="outline" onClick={async () => {
@@ -154,9 +179,11 @@ export default function NavbarComponent({ role }: { role: string }) {
                               label: "Undo",
                               onClick: () => console.log("Undo"),
                             },
-                          })
+                          });
                         }
-                      }}>Load Credit</Button>
+                      }}>
+                        Load Credit
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -177,7 +204,6 @@ export default function NavbarComponent({ role }: { role: string }) {
           ) : (
             ""
           )}
-
         </nav>
       </header>
     </>
@@ -223,5 +249,3 @@ function MountainIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-
-

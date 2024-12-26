@@ -36,11 +36,6 @@ const adminItems = (sysadminId: string) => [
     url: `/sysadmin/${sysadminId}/students`,
     icon: UserRoundPen,
   },
-  {
-    title: "Certificate",
-    url: `/sysadmin/${sysadminId}/certificates`,
-    icon: ShieldCheck,
-  },
 ];
 
 const staffItems = (staffId: string) => [

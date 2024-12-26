@@ -89,7 +89,6 @@ const staffColumns: ColumnDef<StaffAccountDetails>[] = [
     cell: () => {
       return (
         <div className="flex space-x-2">
-          <Button variant="outline">Update</Button>
           <Button variant="destructive">Delete</Button>
         </div>
       );

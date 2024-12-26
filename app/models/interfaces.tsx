@@ -36,8 +36,7 @@ export type RequestDetails = {
 
 export type CertificateDetails {
   id: number;
-  certificate_id: string;
-  sender_id: string;
+  sender_staff_id: number;
   date: string;
 }
 

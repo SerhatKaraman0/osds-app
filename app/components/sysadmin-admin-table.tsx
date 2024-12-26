@@ -89,9 +89,6 @@ const sysadminColumns: ColumnDef<SysadminAccountDetails>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => handleUpdate(row.original)}>
-            Update
-          </Button>
           <Button
             variant="destructive"
             onClick={() => handleDelete(row.original)}
@@ -253,10 +250,7 @@ export default function SysadminAdminTable({
     </div>
   );
 }
-function handleUpdate(sysadmin: SysadminAccountDetails) {
-  // Implement the update logic here
-  console.log("Update", sysadmin);
-}
+
 
 function handleDelete(sysadmin: SysadminAccountDetails) {
   // Implement the delete logic here

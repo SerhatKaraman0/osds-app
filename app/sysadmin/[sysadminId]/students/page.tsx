@@ -1,5 +1,3 @@
-import React, { useEffect, useState } from "react";
-
 import NavbarComponent from "@/app/components/app-navbar";
 import SysadminStudentTable from "@/app/components/sysadmin-student-table";
 import { StudentAccountDetails } from "@/app/models/interfaces";

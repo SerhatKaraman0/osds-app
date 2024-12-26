@@ -14,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { postTranscriptRequest } from "../api/actions";
+import { getStudentFromId, postTranscriptRequest } from "../api/actions";
 import { toast } from "sonner";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/actions";
-
+import { updateStudentCredits } from "../api/actions";
 
 interface RequestDetails {
   id: number;
@@ -60,10 +60,10 @@ interface RequestsTableProps {
 }
 
 const requestService = {
-  async updateRequestState(requestId: number, state: "approved" | "denied") {
+  async updateRequestState(requestId: number, request_sender_id, amount, state: "approved" | "denied") {
     try {
       const response = await fetch(
-        `http://0.0.0.0:8080/backend/requests/${requestId}/state/${state}`,
+        `http://localhost:8080/backend/requests/${requestId}/state/${state}`,
         {
           method: "PUT",
           headers: { Accept: "application/json" },
@@ -74,6 +74,12 @@ const requestService = {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
+      if (state === "approved" && response.ok) {
+        const user = await getStudentFromId(request_sender_id);
+        const newAmount = user.credits + amount;
+        const creditResponse = await updateStudentCredits(request_sender_id, user.assigned_staff_id, newAmount);
+
+      }
       const data = await response.json();
       toast[state === "approved" ? "success" : "error"](
         `Request ${state === "approved" ? "Approved" : "Denied"}`
@@ -89,7 +95,7 @@ const requestService = {
   async fetchRequests() {
     try {
       const user = await getSession();
-      const response = await fetch(`http://0.0.0.0:8080/backend/requests/${user.userId}`, {
+      const response = await fetch(`http://localhost:8080/backend/requests/${user.userId}`, {
         method: "GET",
         headers: { Accept: "application/json" },
       });
@@ -126,11 +132,11 @@ const TranscriptDialog = React.memo(({ studentId }: { studentId: string }) => {
 
   const autoPopulateCourses = () => {
     const sampleCourses = [
-      { course_code: "CS101", course_name: "Computer Science 101", grade: "A", ch:"16", cr: "4" },
-      { course_code: "MATH101", course_name: "Calculus I", grade: "B", ch:"9", cr: "3" },
-      { course_code: "ENG101", course_name: "English Literature", grade: "B", ch:"9", cr: "3" },
-      { course_code: "HIST101", course_name: "History of the World", grade: "A-", ch:"14.8", cr: "4" },
-      { course_code: "PHYS101", course_name: "Physics I", grade: "A-", ch:"14.8", cr: "4" },
+      { course_code: "CS101", course_name: "Computer Science 101", grade: "A", ch: "16", cr: "4" },
+      { course_code: "MATH101", course_name: "Calculus I", grade: "B", ch: "9", cr: "3" },
+      { course_code: "ENG101", course_name: "English Literature", grade: "B", ch: "9", cr: "3" },
+      { course_code: "HIST101", course_name: "History of the World", grade: "A-", ch: "14.8", cr: "4" },
+      { course_code: "PHYS101", course_name: "Physics I", grade: "A-", ch: "14.8", cr: "4" },
     ];
     setCourses(sampleCourses);
   };
@@ -188,15 +194,27 @@ const TranscriptDialog = React.memo(({ studentId }: { studentId: string }) => {
               </div>
             ))}
             <DialogFooter className="mt-6">
-              <Button type="button" onClick={() => { autoPopulateCourses() }}>Auto Populate</Button>
-              <Button type="submit" onClick={async () => {
-                const result = await postTranscriptRequest(studentId, courses)
+              <Button type="button" variant={"outline"} onClick={() => { autoPopulateCourses() }}>Auto Populate</Button>
+              <Button type="submit" variant={"outline"} className="bg-green-400" onClick={async (e) => {
+                e.preventDefault();
+                const result = await postTranscriptRequest(studentId, courses);
+
                 if (result.success) {
-                  toast.success("Transcript sent successfully");
+                  const student = await getStudentFromId(studentId);
+
+                  const newCredits = student.credits - 281;
+                  const creditUpdate = await updateStudentCredits(studentId, student.assigned_staff_id, newCredits);
+
+                  if (creditUpdate.success) {
+                    toast.success("Transcript sent successfully");
+                  } else {
+                    toast.error("Error Sending Transcript");
+                  }
                 } else {
                   toast.error("Error sending transcript");
                 }
               }}>Send</Button>
+              <Button variant={"destructive"}>Deny</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -214,18 +232,18 @@ export default function StaffRequestsTable({ data }: RequestsTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [requestsData, setRequestsData] = useState<RequestDetails[]>(data);
 
-  const handleApprove = useCallback(async (requestId: number) => {
-    await requestService.updateRequestState(requestId, "approved");
+  const handleApprove = useCallback(async (requestId: number, request_sender_id, amount) => {
+    await requestService.updateRequestState(requestId, request_sender_id, amount, "approved");
   }, []);
 
-  const handleDeny = useCallback(async (requestId: number) => {
-    await requestService.updateRequestState(requestId, "denied");
+  const handleDeny = useCallback(async (requestId: number, request_sender_id, amount) => {
+    await requestService.updateRequestState(requestId, request_sender_id, amount, "denied");
   }, []);
 
   const handleRefresh = useCallback(async () => {
     try {
       const user = await getSession();
-      const freshData = await fetch(`http://0.0.0.0/frontend/requests/${user.userId}`, {
+      const freshData = await fetch(`http://localhost:8080/frontend/requests/${user.userId}`, {
         method: "GET",
         headers: { Accept: "application/json" },
       });
@@ -290,6 +308,10 @@ export default function StaffRequestsTable({ data }: RequestsTableProps) {
       ),
     },
     {
+      accessorKey: "request_amount",
+      header: "Request Amount",
+    },
+    {
       accessorKey: "request_state",
       header: ({ column }) => (
         <Button
@@ -321,7 +343,7 @@ export default function StaffRequestsTable({ data }: RequestsTableProps) {
       accessorKey: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const { request_type, request_state, id, request_sender_id } = row.original;
+        const { request_type, request_state, id, request_sender_id, request_amount } = row.original;
 
         if (request_type === "transcript") {
           return (
@@ -338,14 +360,14 @@ export default function StaffRequestsTable({ data }: RequestsTableProps) {
                 <Button
                   variant="outline"
                   className="bg-green-300 w-24"
-                  onClick={() => handleApprove(id)}
+                  onClick={() => handleApprove(id, request_sender_id, request_amount)}
                 >
                   Approve
                 </Button>
                 <Button
                   variant="destructive"
                   className="w-24"
-                  onClick={() => handleDeny(id)}
+                  onClick={() => handleDeny(id, row.request_sender_id, row.request_amount)}
                 >
                   Deny
                 </Button>
